@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: ac41bfb0be0352048bdafb3e810c8def
+AssetOrigin:
+  serializedVersion: 1
+  productId: 145324
+  packageName: RPG Character Controllers
+  packageVersion: 7.0
+  assetPath: Assets/John Stairs/RPG Character Controllers/Scripts/Character/Motor/Subcomponents/ClimbingHandler.cs
+  uploadId: 979182

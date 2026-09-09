@@ -13,8 +13,18 @@ public class PlayerMovement : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (IsOwner)
+        if (!IsOwner)
         {
+            return;
+        }
+
+        if (PlayerSpawnPoints.Instance != null)
+        {
+            transform.position = PlayerSpawnPoints.Instance.GetSpawnPosition(OwnerClientId);
+        }
+        else
+        {
+            Debug.LogWarning("[PlayerMovement] No PlayerSpawnPoints in the scene; falling back to a default offset.");
             float startX = OwnerClientId == 0 ? -2f : 2f;
             transform.position = new Vector3(startX, 1f, 0f);
         }

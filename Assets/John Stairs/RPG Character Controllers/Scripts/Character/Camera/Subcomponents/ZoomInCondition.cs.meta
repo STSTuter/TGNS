@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 5753562c7d019054393ee8b9936672ef
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 145324
+  packageName: RPG Character Controllers
+  packageVersion: 7.0
+  assetPath: Assets/John Stairs/RPG Character Controllers/Scripts/Character/Camera/Subcomponents/ZoomInCondition.cs
+  uploadId: 979182

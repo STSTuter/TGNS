@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 00d658c134c64d14498d8776f762c82e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 145324
+  packageName: RPG Character Controllers
+  packageVersion: 7.0
+  assetPath: Assets/John Stairs/RPG Character Controllers/Scripts/Character/Camera/Subcomponents/Interfaces/IOcclusionHandler.cs
+  uploadId: 979182

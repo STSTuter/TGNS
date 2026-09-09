@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 6ec9909746dd65a4297ccf17ed8d5c2b
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 145324
+  packageName: RPG Character Controllers
+  packageVersion: 7.0
+  assetPath: Assets/John Stairs/RPG Character Controllers/Scripts/Ability/Interfaces/Enums/AbilityAnimationFlow.cs
+  uploadId: 979182

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 119d6e5e522e9d44a901a83ca3bf15c9
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 145324
+  packageName: RPG Character Controllers
+  packageVersion: 7.0
+  assetPath: Assets/John Stairs/RPG Character Controllers/Animation/Animation Placeholders/Crouching Walk Forward.anim
+  uploadId: 979182

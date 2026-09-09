@@ -114,10 +114,28 @@ Verified against `Library/PackageCache/com.unity.netcode.gameobjects@*/Runtime/`
   `AuthorityMode = Owner` pushes that position to the server and all other clients. This is the
   simplest possible movement model and matches the "no physics networking, no
   prediction/reconciliation" constraint explicitly requested.
-- **Spawn offset applied by the owner, in `OnNetworkSpawn()`.** Because authority is
-  owner-side, a server-set spawn position would never replicate outward under `AuthorityMode.Owner`
-  — only the owner's own transform writes are synced. So each client sets its own spawn position
-  the moment it spawns: `OwnerClientId == 0 ? (-2,1,0) : (2,1,0)`. Client 0 is always the host.
+- **Spawn position applied by the owner, in `OnNetworkSpawn()`, sourced from a world-placed spawn
+  point registry.** Because authority is owner-side, a server-set spawn position would never
+  replicate outward under `AuthorityMode.Owner` — only the owner's own transform writes are
+  synced. So each client still sets its own spawn position the moment it spawns, but now looks it
+  up from `PlayerSpawnPoints.Instance.GetSpawnPosition(OwnerClientId)` (an earlier revision
+  hardcoded `OwnerClientId == 0 ? (-2,1,0) : (2,1,0)` directly in `PlayerMovement`; that literal
+  is now only a fallback used if no `PlayerSpawnPoints` exists in the scene, so the project still
+  works if that GameObject is ever deleted).
+  `PlayerSpawnPoints` (`Assets/Scripts/PlayerSpawnPoints.cs`) is a plain (non-networked)
+  `MonoBehaviour` living on the scene's `SpawnPoints` GameObject. It holds a `Transform[]`
+  (Inspector-editable, or auto-collected from its own children if left empty) and maps
+  `OwnerClientId % spawnPoints.Length` to a position — i.e. **spawn points are ordinary empty
+  GameObjects you drag around in the scene**, not code literals. `PlayerSpawnPoints.MaxPlayers`
+  (currently `4`) is the single source of truth for the player cap: `SteamLobbyManager.MaxPlayers`
+  references it directly so the Steam lobby's `cMaxMembers` and the spawn-point cap can never
+  drift apart. There is no NGO-side connection-approval enforcement of this cap — Steam itself
+  refuses a 5th lobby member once `CreateLobby`'s member limit is reached, which is sufficient for
+  this prototype's scope.
+  **Caveat:** clientId-based modulo indexing assumes clientIds stay low and contiguous (true for
+  a session with no disconnect/reconnect churn, which matches this prototype's scope — see
+  Non-goals). It is not a robust "first come, first served" seat assignment for a long-lived
+  session with players leaving and rejoining.
 - **`FriendsOnly` lobby visibility** (`SteamLobbyManager.LobbyVisibility`, a `const`). Chosen over
   `Public` to avoid the (admittedly minor, since nobody searches) risk of AppID-480 lobby
   namespace collisions with other developers' test sessions. Trade-off: the two test Steam
@@ -152,7 +170,8 @@ All of the following were actually run and observed, not assumed:
    directly): a real Steam lobby was created (`LobbyID=109775245112709037`), `NetworkManager.StartHost()`
    returned `true`, `OnClientConnectedCallback` fired for client 0, and the spawned
    `Player(Clone)` GameObject's `transform.position` was confirmed at exactly `(-2, 1, 0)` — the
-   host/owner-0 spawn offset.
+   host/owner-0 spawn offset (this was before the `PlayerSpawnPoints` registry existed; see item
+   6 below for the re-test after that change).
 4. **Windows build**: built via the live-Editor `build`/`build_status` pipeline commands (not a
    second batch-mode Editor instance, which would have deadlocked on the project file lock).
    Result: 0 errors, 1 expected/harmless warning about the dev-only Pipeline package, output at
@@ -162,12 +181,30 @@ All of the following were actually run and observed, not assumed:
    (`%USERPROFILE%\AppData\LocalLow\DefaultCompany\TGNS\Player.log`) showed a clean
    `[SteamBootstrap] Steam initialized...` line — confirming `steam_appid.txt` placement actually
    works for a real standalone build, not just in-Editor.
+6. **Spawn-point registry re-test** (same `eval`-driven flow, after replacing the hardcoded
+   offset with `PlayerSpawnPoints`): with `SpawnPoint_0..3` placed at `(-2,1,-2)`, `(2,1,-2)`,
+   `(-2,1,2)`, `(2,1,2)`, hosting spawned the player capsule at exactly `(-2.00, 1.00, -2.00)` —
+   `SpawnPoint_0`'s position, confirming the `OwnerClientId % spawnPoints.Length` lookup works and
+   no `[PlayerSpawnPoints]`/`[PlayerMovement]` fallback warnings were logged (i.e. the registry
+   was found and used, not the hardcoded fallback).
 
 What was **not** verified in this session (needs a second physical/virtual PC): the actual
 cross-machine JOIN flow, i.e. PC B resolving the lobby owner's SteamID and successfully connecting
 over `SteamNetworkingSockets` to PC A across the real Internet. The code path is implemented and
 the API calls are confirmed correct against the installed packages, but end-to-end two-PC
 connectivity has not been physically observed.
+
+## Note: the scene also contains unrelated environment art
+
+`SampleScene.unity` currently has a large set of decorative root objects (`Plants`, `Rocks`,
+`Trees`, `Background Trees`, `Decals`, `Particles`, `Bushes`, `Terrain`, `Water`, `Props`,
+`Mushrooms`, `Flowers`) alongside the networking objects this document describes
+(`NetworkManager`, `SteamNetwork`, `SpawnPoints`, `Floor`, `Main Camera`, `Directional Light`).
+That art was added directly in the Editor by the project owner, separately from and unrelated to
+the networking prototype work — it is not part of the multiplayer implementation and this
+document does not cover it. Don't assume it was placed there by mistake or "clean it up" as part
+of unrelated networking work; if it's ever in the way of something networking-related (e.g. it
+occludes the camera or a spawn point), ask before touching it.
 
 ## Explicit non-goals (do not add without the user asking)
 

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 58cf48697e695fc47aae262d6fb844a5
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 145324
+  packageName: RPG Character Controllers
+  packageVersion: 7.0
+  assetPath: Assets/John Stairs/RPG Character Controllers/Scripts/Character/Interfaces/IAnimationHandler.cs
+  uploadId: 979182

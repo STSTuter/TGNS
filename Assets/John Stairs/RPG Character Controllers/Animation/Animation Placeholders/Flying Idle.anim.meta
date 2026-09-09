@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 5d30340450cad61489221f9c06b21b82
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 145324
+  packageName: RPG Character Controllers
+  packageVersion: 7.0
+  assetPath: Assets/John Stairs/RPG Character Controllers/Animation/Animation Placeholders/Flying Idle.anim
+  uploadId: 979182

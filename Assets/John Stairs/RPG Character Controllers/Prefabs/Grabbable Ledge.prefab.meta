@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b9d20d2e13ef00c41be1e28c8fd36548
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 145324
+  packageName: RPG Character Controllers
+  packageVersion: 7.0
+  assetPath: Assets/John Stairs/RPG Character Controllers/Prefabs/Grabbable Ledge.prefab
+  uploadId: 979182

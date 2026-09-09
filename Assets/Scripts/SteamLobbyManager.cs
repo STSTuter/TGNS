@@ -4,7 +4,7 @@ using Unity.Netcode;
 using UnityEngine;
 
 /// <summary>
-/// Minimal Steam lobby + NGO session glue for a 2-player prototype:
+/// Minimal Steam lobby + NGO session glue for a small (up to MaxPlayers) prototype:
 /// HOST creates a friends-only Steam lobby and starts NGO as Host;
 /// JOIN enters a pasted lobby ID, resolves the lobby owner's SteamID, points the
 /// SteamNetworkingSocketsTransport at it, and starts NGO as Client.
@@ -23,7 +23,7 @@ public class SteamLobbyManager : MonoBehaviour
 
     // Flip to k_ELobbyTypePublic if the two test accounts aren't Steam friends.
     private const ELobbyType LobbyVisibility = ELobbyType.k_ELobbyTypeFriendsOnly;
-    private const int MaxPlayers = 2;
+    private const int MaxPlayers = PlayerSpawnPoints.MaxPlayers;
     private const string HostSteamIdLobbyKey = "HostSteamID";
 
     public CSteamID CurrentLobbyId { get; private set; } = CSteamID.Nil;

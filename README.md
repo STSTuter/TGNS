@@ -1,8 +1,9 @@
 # TGNS — Steam P2P 2-Player Prototype
 
-A minimal Unity multiplayer prototype: two players, each controlling a capsule with WASD,
-connected **peer-to-peer over Steam** — no dedicated server, no Unity Relay/Lobby, no manual
-IP entry, no port forwarding.
+A minimal Unity multiplayer prototype: players each control a capsule with WASD, connected
+**peer-to-peer over Steam** — no dedicated server, no Unity Relay/Lobby, no manual IP entry, no
+port forwarding. The lobby/spawn system supports up to **4** players (`PlayerSpawnPoints.MaxPlayers`);
+the tested and verified end-to-end flow so far is 2 PCs / 2 Steam accounts (see Testing below).
 
 **Stack:** Unity 6000.6.0f1 · Netcode for GameObjects (NGO) 2.13.2 · Steamworks.NET ·
 community SteamNetworkingSockets NGO transport · Steam AppID 480 (Valve's public "Spacewar" test AppID).
@@ -32,6 +33,7 @@ Assets/
   Scripts/
     SteamBootstrap.cs        Steam API init / RunCallbacks / shutdown, exposes local user info
     SteamLobbyManager.cs     Steam lobby create/join/leave + NGO StartHost/StartClient/Shutdown
+    PlayerSpawnPoints.cs     Registry of world-placed spawn point Transforms (up to MaxPlayers)
     DebugUI.cs                Ugly-but-functional IMGUI dev UI (HOST/JOIN/DISCONNECT/status)
   Editor/
     SteamAppIdPostBuild.cs   Post-build step: writes steam_appid.txt beside the built .exe
@@ -51,11 +53,19 @@ docs/
 |---|---|---|
 | `NetworkManager` | `NetworkManager`, `SteamNetworkingSocketsTransport` | NGO session; `NetworkConfig.NetworkTransport` and `NetworkConfig.PlayerPrefab` are wired to this transport and to `Assets/Prefabs/Player.prefab` |
 | `SteamNetwork` | `SteamBootstrap`, `SteamLobbyManager`, `DebugUI` | All Steam plumbing + the dev UI |
-| `Main Camera` | static, positioned at `(0, 12, -12)` pitched 45° down | Frames both spawn points; **not** networked, no player-follow logic |
+| `Main Camera` | static, positioned at `(0, 12, -12)` pitched 45° down | Frames the spawn area; **not** networked, no player-follow logic |
 | `Floor`, `Directional Light` | — | Static scene dressing |
+| `SpawnPoints` | `PlayerSpawnPoints` | Parent of up to `PlayerSpawnPoints.MaxPlayers` (4) empty child GameObjects — the actual spawn locations, placed in the world |
+| `SpawnPoints/SpawnPoint_0..3` | `Transform` only | Plain empty GameObjects. Move these around in the Editor to change where players spawn — no code changes needed |
 
 No player capsules are hand-placed in the scene — NGO spawns `Player.prefab` automatically per
-connected client (`OwnerClientId == 0` spawns at `(-2,1,0)`, all other clients at `(2,1,0)`).
+connected client. Each client positions its own capsule on spawn by asking
+`PlayerSpawnPoints.Instance` for the point at index `OwnerClientId % spawnPoints.Length` (host is
+always client 0 → `SpawnPoint_0`). To add/remove/move spawn points: edit the `SpawnPoints`
+GameObject's children and re-wire the `spawnPoints` array on its `PlayerSpawnPoints` component (or
+leave the array empty and it auto-collects its own direct children in hierarchy order). Max
+player count is a single constant, `PlayerSpawnPoints.MaxPlayers` (currently 4) — it also drives
+the Steam lobby's `cMaxMembers` in `SteamLobbyManager`, so the two stay in sync automatically.
 
 ## Building
 

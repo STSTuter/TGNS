@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: ec828f8a305d83f46a6d08967dcaea65
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 145324
+  packageName: RPG Character Controllers
+  packageVersion: 7.0
+  assetPath: Assets/John Stairs/RPG Character Controllers/Scripts/Character/Motor/Subcomponents/Interfaces/IMotorSubcomponent.cs
+  uploadId: 979182

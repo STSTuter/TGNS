@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ef881cedf7fca524984493cd20a6d2d1
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 145324
+  packageName: RPG Character Controllers
+  packageVersion: 7.0
+  assetPath: Assets/John Stairs/RPG Character Controllers/Animation/Animation Placeholders/Crouching Idle.anim
+  uploadId: 979182

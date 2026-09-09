@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c10b2178754637f4f86fffd2286ea84f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 145324
+  packageName: RPG Character Controllers
+  packageVersion: 7.0
+  assetPath: Assets/John Stairs/RPG Character Controllers/Animation/Animation Placeholders/Strafe Walk Forward Right.anim
+  uploadId: 979182

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e3a59542fe729af4fa26e76716ec908b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 145324
+  packageName: RPG Character Controllers
+  packageVersion: 7.0
+  assetPath: Assets/John Stairs/RPG Character Controllers/Animation/Animation Placeholders/Ledge Grab Idle.anim
+  uploadId: 979182

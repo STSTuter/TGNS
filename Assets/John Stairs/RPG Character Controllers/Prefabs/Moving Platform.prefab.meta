@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 306dbb4d641f3fc4396fcdd167cd9fca
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 145324
+  packageName: RPG Character Controllers
+  packageVersion: 7.0
+  assetPath: Assets/John Stairs/RPG Character Controllers/Prefabs/Moving Platform.prefab
+  uploadId: 979182

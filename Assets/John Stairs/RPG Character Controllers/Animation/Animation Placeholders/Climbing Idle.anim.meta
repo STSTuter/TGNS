@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8853f435eef09cc48b59a8a920c2b7a1
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 145324
+  packageName: RPG Character Controllers
+  packageVersion: 7.0
+  assetPath: Assets/John Stairs/RPG Character Controllers/Animation/Animation Placeholders/Climbing Idle.anim
+  uploadId: 979182

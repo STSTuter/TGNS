@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d45443544c52ceb40abf46464d58d838
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 145324
+  packageName: RPG Character Controllers
+  packageVersion: 7.0
+  assetPath: Assets/John Stairs/RPG Character Controllers/Animation/Animator Controllers/Base Animator.controller
+  uploadId: 979182

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: b8ddeadd854411040a84bb10a788d725
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 145324
+  packageName: RPG Character Controllers
+  packageVersion: 7.0
+  assetPath: Assets/John Stairs/RPG Character Controllers/Scripts/Character/Camera/Subcomponents/Enums/FrustumShape.cs
+  uploadId: 979182
