@@ -444,6 +444,8 @@ GameObject:
   - component: {fileID: 1294031708}
   - component: {fileID: 1294031707}
   - component: {fileID: 1294031706}
+  - component: {fileID: 1294031710}
+  - component: {fileID: 1294031711}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -546,6 +548,61 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &1294031710
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1294031705}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 1
+  m_Constraints: 112
+  m_CollisionDetection: 0
+  m_Velocity: {x: 0, y: 0, z: 0}
+  m_AngularVelocity: {x: 0, y: 0, z: 0}
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseConeFriction: 0
+  m_SolverIterations: 6
+  m_SolverVelocityIterations: 1
+  m_SleepThreshold: 0.005
+  m_MaxAngularVelocity: 7
+  m_MaxDepenetrationVelocity: 10
+  m_ConnectedBody: {fileID: 0}
+  m_ConnectedArticulationBody: {fileID: 0}
+  m_FreezeRotation: 1
+  m_CollisionDetectionMode: 0
+  m_Position: {x: 0, y: 0, z: 0}
+  m_Rotation: {x: 0, y: 0, z: 0, w: 1}
+--- !u!114 &1294031711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1294031705}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f8f7782c3e64cb5b6d2d3de9d1cb9a1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  moveSpeed: 5
 --- !u!1 &1455739913
 GameObject:
   m_ObjectHideFlags: 0
