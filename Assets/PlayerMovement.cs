@@ -1,30 +1,35 @@
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Moves the gold cylinder using WASD while leaving vertical motion to the physics engine.
+/// Owner-authoritative WASD movement for the networked player capsule. Only the owning client
+/// reads input and writes its own transform.position; NetworkTransform (AuthorityMode = Owner)
+/// replicates that position to the server and every other client. No Rigidbody is used.
 /// </summary>
-[RequireComponent(typeof(Rigidbody))]
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : NetworkBehaviour
 {
     [SerializeField] private float moveSpeed = 5f;
 
-    private Rigidbody body;
-
-    private void Awake()
+    public override void OnNetworkSpawn()
     {
-        body = GetComponent<Rigidbody>();
-        body.interpolation = RigidbodyInterpolation.Interpolate;
-        body.constraints = RigidbodyConstraints.FreezeRotation;
+        if (IsOwner)
+        {
+            float startX = OwnerClientId == 0 ? -2f : 2f;
+            transform.position = new Vector3(startX, 1f, 0f);
+        }
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
-        Vector2 input = ReadMovementInput();
-        Vector3 horizontalVelocity = new Vector3(input.x, 0f, input.y) * moveSpeed;
+        if (!IsOwner)
+        {
+            return;
+        }
 
-        Vector3 currentVelocity = body.linearVelocity;
-        body.linearVelocity = new Vector3(horizontalVelocity.x, currentVelocity.y, horizontalVelocity.z);
+        Vector2 input = ReadMovementInput();
+        Vector3 delta = new Vector3(input.x, 0f, input.y) * moveSpeed * Time.deltaTime;
+        transform.position += delta;
     }
 
     private static Vector2 ReadMovementInput()
