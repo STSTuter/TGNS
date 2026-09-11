@@ -1,3 +1,4 @@
+using JohnStairs.RPG.Character.Cam;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -5,9 +6,9 @@ using UnityEngine;
 /// Project-owned head-look driven by Unity's Humanoid Animator IK (the project does not include
 /// the Animation Rigging package).
 ///
-/// The owner computes camera-relative <c>HeadYaw</c> / <c>HeadPitch</c> and writes them as Animator
-/// float parameters; <see cref="Unity.Netcode.Components.NetworkAnimator"/> replicates them, and every
-/// client (owner and remote alike) applies them in <see cref="OnAnimatorIK"/> without touching local
+/// The owner reads its orbit camera's yaw/pitch from <see cref="RPGCamera.GetPositionParameters"/> and writes
+/// them as Animator float parameters; <see cref="Unity.Netcode.Components.NetworkAnimator"/> replicates them,
+/// and every client (owner and remote alike) applies them in <see cref="OnAnimatorIK"/> without touching local
 /// input. Body influence is kept at (or near) zero so the neck-down body stays owned by locomotion;
 /// the yaw is clamped relative to the body so the head never twists past the configured limit.
 /// </summary>
@@ -39,7 +40,7 @@ public class HumanoidHeadLook : NetworkBehaviour
     private static readonly int HeadPitchId = Animator.StringToHash("HeadPitch");
 
     private Animator _animator;
-    private NetworkedFirstPersonController _controller;
+    private RPGCamera _camera;
 
     private float _smoothYaw;
     private float _smoothPitch;
@@ -49,23 +50,26 @@ public class HumanoidHeadLook : NetworkBehaviour
     private void Awake()
     {
         _animator = GetComponent<Animator>();
-        _controller = GetComponent<NetworkedFirstPersonController>();
+        _camera = GetComponent<RPGCamera>();
     }
 
     private void LateUpdate()
     {
-        if (!IsOwner || _controller == null)
+        // Only the owner has a live camera; on replicas these parameters arrive via NetworkAnimator.
+        if (!IsOwner || _camera == null || !_camera.enabled)
         {
             return;
         }
 
+        // RPGCamera.GetPositionParameters() packs the orbit state as (yaw, pitch, distance).
+        Vector3 cameraParameters = _camera.GetPositionParameters();
+
         // Camera-relative head aim. Yaw is measured against the current body facing so the value
-        // written here already respects the head limit; torso correction in the controller keeps
-        // the raw camera yaw from ever needing more than this.
+        // written here already respects the head limit.
         float yaw = Mathf.Clamp(
-            Mathf.DeltaAngle(transform.eulerAngles.y, _controller.CameraYaw),
+            Mathf.DeltaAngle(transform.eulerAngles.y, cameraParameters.x),
             -maxHeadYaw, maxHeadYaw);
-        float pitch = Mathf.Clamp(_controller.CameraPitch, minHeadPitch, maxHeadPitch);
+        float pitch = Mathf.Clamp(cameraParameters.y, minHeadPitch, maxHeadPitch);
 
         _animator.SetFloat(HeadYawId, yaw);
         _animator.SetFloat(HeadPitchId, pitch);

@@ -57,9 +57,13 @@ GameObject:
   - component: {fileID: 5847427323523884032}
   - component: {fileID: 6788529556316441136}
   - component: {fileID: 8024544345349340319}
-  - component: {fileID: 554480741003430215}
   - component: {fileID: 6417463193548074010}
   - component: {fileID: 7051585037452226505}
+  - component: {fileID: 5952475735676323367}
+  - component: {fileID: 6509480663232926813}
+  - component: {fileID: 2692733253308778386}
+  - component: {fileID: 3822114937077106412}
+  - component: {fileID: 6087087022832185098}
   m_Layer: 3
   m_Name: NetworkPlayer
   m_TagString: Player
@@ -116,19 +120,19 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8091910595891037218}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f45a74d1965f3804b97e032eeed27ec0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UsedCamera: {fileID: 0}
+  UsedCamera: {fileID: 559808311146036522}
   ViewportMargin: {x: 0.2, y: 0.2}
   RotationSmoothTime: 0.1
   DistanceSmoothing: 1
   DistanceSmoothTime: 0.4
   MinPitch: -89.9
   MaxPitch: 89.9
-  MinDistance: 0
+  MinDistance: 1
   MaxDistance: 20
   LockYaw: 0
   LockPitch: 0
@@ -261,7 +265,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8091910595891037218}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bff6cde672ee6e64396eee90a3376c01, type: 3}
   m_Name: 
@@ -501,28 +505,6 @@ MonoBehaviour:
       Synchronize: 1
       ParameterType: 1
   AnimatorParametersExpanded: 0
---- !u!114 &554480741003430215
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8091910595891037218}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8065eec9bb3900247930d7e26fe60b07, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NetworkedFirstPersonController
-  ShowTopMostFoldoutHeaderGroup: 1
-  fpsCamera: {fileID: 559808311146036522}
-  cameraPivot: {fileID: 8323346875241749732}
-  mouseSensitivity: 0.1
-  minPitch: -80
-  maxPitch: 80
-  firstPersonHiddenRenderers: []
-  bodyRotationSmoothTime: 0.15
-  beginTorsoCorrection: 75
-  moveFacingThreshold: 0.1
 --- !u!114 &6417463193548074010
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -564,6 +546,132 @@ MonoBehaviour:
   minHeadPitch: -50
   lookSmoothTime: 0.12
   lookDistance: 12
+--- !u!114 &5952475735676323367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8091910595891037218}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
+  m_Actions: {fileID: -944628639613478452, guid: 2ba70547e07235f4a99cd9bda236f819, type: 3}
+  m_NotificationBehavior: 3
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents: []
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: Character
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
+--- !u!114 &6509480663232926813
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8091910595891037218}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a26870ef209f618499a400880895fcf2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JohnStairs.RPG.Character.Controller.Subcomponents.InputHandler
+  _ActivateOrbitingStart: 0
+  _ActivateOrbitingStop: 0
+  _OrbitingAmount: {x: 0, y: 0}
+  _ZoomAmount: 0
+  _MinDistanceZoom: 0
+  _MaxDistanceZoom: 0
+  _CursorPosition: {x: 0, y: 0}
+  _ToggleCursorVisibility: 0
+  _Movement: {x: 0, y: 0}
+  _MoveForward: 0
+  _Rotate: 0
+  _Jump: 0
+  _Sprint: 0
+  _ToggleWalking: 0
+  _ToggleCrouching: 0
+  _ToggleAutorunning: 0
+  _AlignWithCamera: 0
+  _ToggleFlyingAbility: 0
+  _Ascend: 0
+  _Descend: 0
+  _Select: 0
+  _Cancel: 0
+  _ActionBarSlots: []
+  _LockOnTarget: 0
+--- !u!114 &2692733253308778386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8091910595891037218}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03f157de8410e3f4d9e0c011752b212e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JohnStairs.RPG.CursorHandler
+  UiLayers:
+    serializedVersion: 2
+    m_Bits: 32
+--- !u!114 &3822114937077106412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8091910595891037218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d76c28678afbec64b8ba6e13b51ca7cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkPlayerOwnership
+  ShowTopMostFoldoutHeaderGroup: 1
+  controller: {fileID: 6087087022832185098}
+  rpgCamera: {fileID: 4097477199738738776}
+  inputHandler: {fileID: 6509480663232926813}
+  cursorHandler: {fileID: 2692733253308778386}
+  playerInput: {fileID: 5952475735676323367}
+  motor: {fileID: 3622281444610489454}
+  cameraObject: {fileID: 8668519872937634696}
+  detachCamera: 1
+  takeOverSceneCamera: 1
+--- !u!114 &6087087022832185098
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8091910595891037218}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 511e8433a95cd9b4abc1a70f9fdd836d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TGNSMMOController
+  InvertYawAxis: 1
+  InvertPitchAxis: 1
+  YawSensitivity: 0.25
+  PitchSensitivity: 0.25
+  ZoomSensitivity: 0.01
+  SyncRotations: 1
+  ShakeFrequency: 5
+  ShakeAmplitude: 10
+  ShakeAmplitudeVariance: 2
+  AreaSelectionByCursor: 1
+  AlignCameraOnCharacterMovement: 1
 --- !u!1 &8668519872937634696
 GameObject:
   m_ObjectHideFlags: 0
@@ -575,9 +683,10 @@ GameObject:
   - component: {fileID: 7638633103399932558}
   - component: {fileID: 559808311146036522}
   - component: {fileID: 958672063600256300}
+  - component: {fileID: 2536801983365353362}
   m_Layer: 0
-  m_Name: FPSCamera
-  m_TagString: Untagged
+  m_Name: PlayerCamera
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -656,6 +765,50 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8668519872937634696}
   m_Enabled: 1
+--- !u!114 &2536801983365353362
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8668519872937634696}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+  m_UseScreenCoordOverride: 0
+  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_TaaSettings:
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
+  m_Version: 2
 --- !u!1001 &2510424380807103722
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -670,7 +823,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2493235505937313295, guid: 88df0389e96833a4ab4d5a21ed648138, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.056
       objectReference: {fileID: 0}
     - target: {fileID: 2493235505937313295, guid: 88df0389e96833a4ab4d5a21ed648138, type: 3}
       propertyPath: m_LocalPosition.z
