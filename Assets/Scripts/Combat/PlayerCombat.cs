@@ -1,125 +1,113 @@
-using JohnStairs.RPG.Character;
-using JohnStairs.RPG.Combat.Abilities.Enums;
+using JohnStairs.RCC.Inputs;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace TGNS.Combat
+namespace FYP.Combat
 {
-    /// <summary>
-    /// Owner-authoritative melee attack input. Triggers the vendor
-    /// AnimationHandler's existing "Melee Cast" animation (see
-    /// AnimationHandler.Cast/FinishCast) and, in the middle of the swing,
-    /// arms the MeleeWeapon's hitbox server-side.
-    ///
-    /// The animation trigger itself is replayed on every client via RPC
-    /// rather than relying on NetworkAnimator to pick up a raw
-    /// Animator.SetTrigger call (AnimationHandler talks to the Animator
-    /// directly, not through NetworkAnimator's own SetTrigger wrapper, so it
-    /// would not otherwise replicate).
-    /// </summary>
     public class PlayerCombat : NetworkBehaviour
     {
-        [SerializeField] private MeleeWeapon weapon;
-        [Tooltip("Seconds after the cast trigger before the weapon hitbox is armed.")]
-        [SerializeField] private float hitboxDelay = 0.3f;
-        [Tooltip("How long the weapon hitbox stays active once armed.")]
-        [SerializeField] private float hitboxActiveTime = 0.25f;
-        [Tooltip("Minimum time between attacks.")]
-        [SerializeField] private float attackCooldown = 0.8f;
+        public List<AttackSO> attacks;
+        float lastAttackBeginTime;
+        float lastAttackEndTime;
+        [SerializeField]
+        int attackCounter;
 
-        private IAnimationHandler _animationHandler;
-        private float _lastAttackTime = float.NegativeInfinity;
-        private bool _isAttacking;
+        bool isAttacking;
+
+        public MeleeWeapon weapon;
+        [SerializeField]
+        Animator animator;
+        RPGInputActions inputAction;
 
         private void Awake()
         {
-            _animationHandler = GetComponent<IAnimationHandler>();
+            inputAction = RPGInputManager.GetInputActions();
+            inputAction.Character.Attack.performed += Attack;
+
+        }
+
+        private void Attack(InputAction.CallbackContext context)
+        {
+            if (!IsLocalPlayer)
+                return;
+            if (Time.time - lastAttackEndTime > 2f && attackCounter <= attacks.Count)
+            {
+                CancelInvoke("EndComboAttack");
+                if (Time.time - lastAttackBeginTime >= 1f)
+                {
+                    animator.runtimeAnimatorController = attacks[attackCounter].controller;
+                    animator.Play("Attack", 1, 0);
+                    Attack_ServerRPC(attackCounter);
+
+                    attackCounter++;
+                    lastAttackBeginTime = Time.time;
+                    isAttacking = true;
+                    if (attackCounter >= attacks.Count)
+                        attackCounter = 0;
+                }
+            }
+        }
+
+        [ServerRpc]
+        void Attack_ServerRPC(int value)
+        {
+            weapon.EnableCollision();
+            Attack_ClientRPC(value);
+        }
+        [ServerRpc]
+        void EndAttack_ServerRPC()
+        {
+            weapon.DisableCollision();
+            EndAttack_ClientRPC();
+        }
+        [ClientRpc]
+        void EndAttack_ClientRPC()
+        {
+            weapon.DisableCollision();
+        }
+
+        [ClientRpc]
+        void Attack_ClientRPC(int value)
+        {
+            if (IsLocalPlayer)
+                return;
+            animator.runtimeAnimatorController = attacks[value].controller;
+            animator.Play("Attack", 1, 0);
+
         }
 
         private void Update()
         {
-            if (!IsOwner || _isAttacking)
-            {
+            if (!IsLocalPlayer)
                 return;
-            }
-
-            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame
-                && Time.time - _lastAttackTime >= attackCooldown)
-            {
-                BeginAttack();
-            }
+            if (isAttacking)
+                EndAttack();
         }
 
-        private void BeginAttack()
+        void EndAttack()
         {
-            _isAttacking = true;
-            _lastAttackTime = Time.time;
-
-            _animationHandler.Cast(AbilityAnimationFlow.Melee);
-            PlayCast_ServerRpc();
-
-            Invoke(nameof(ArmWeapon), hitboxDelay);
-            Invoke(nameof(FinishAttack), hitboxDelay + hitboxActiveTime);
-        }
-
-        private void ArmWeapon()
-        {
-            ArmWeapon_ServerRpc();
-        }
-
-        private void FinishAttack()
-        {
-            _isAttacking = false;
-            _animationHandler.FinishCast(AbilityAnimationFlow.Melee);
-            PlayFinishCast_ServerRpc();
-            DisarmWeapon_ServerRpc();
-        }
-
-        [ServerRpc]
-        private void PlayCast_ServerRpc()
-        {
-            PlayCast_ClientRpc();
-        }
-
-        [ClientRpc]
-        private void PlayCast_ClientRpc()
-        {
-            if (IsOwner)
-            {
+            if (!IsLocalPlayer)
                 return;
-            }
-
-            _animationHandler.Cast(AbilityAnimationFlow.Melee);
-        }
-
-        [ServerRpc]
-        private void PlayFinishCast_ServerRpc()
-        {
-            PlayFinishCast_ClientRpc();
-        }
-
-        [ClientRpc]
-        private void PlayFinishCast_ClientRpc()
-        {
-            if (IsOwner)
+            if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.9f && animator.GetCurrentAnimatorStateInfo(0).IsTag("Attack"))
             {
-                return;
+                isAttacking = false;
+                Debug.Log("EndComboAttack");
+                Invoke("EndComboAttack", 1);
+                EndAttack_ServerRPC();
             }
-
-            _animationHandler.FinishCast(AbilityAnimationFlow.Melee);
         }
 
-        [ServerRpc]
-        private void ArmWeapon_ServerRpc()
+        void EndComboAttack()
         {
-            weapon.EnableCollision();
-        }
-
-        [ServerRpc]
-        private void DisarmWeapon_ServerRpc()
-        {
-            weapon.DisableCollision();
+            if (!IsOwner)
+                return;
+            Debug.Log("End Combo Attack");
+            attackCounter = 0;
+            lastAttackEndTime = Time.time;
         }
     }
 }

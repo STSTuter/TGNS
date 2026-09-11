@@ -1,201 +1,198 @@
 using System;
+using UnityEditor;
 using UnityEngine;
 
-namespace TGNS.Character
+namespace FYP.Character
 {
-    /// <summary>
-    /// Slot-based body-part swapping: each slot is a parent Transform whose
-    /// children are the interchangeable mesh variants for that slot (index 0,
-    /// 1, 2, ...). Only one child is enabled at a time.
-    ///
-    /// This assumes the character hierarchy under each slot's parent is set
-    /// up with one child GameObject per variant, in a fixed order - build
-    /// that hierarchy in the prefab (drag the modular part meshes from
-    /// Assets/Assets/PolygonFantasyHeroCharacters under the matching slot
-    /// parent) before this component has anything to switch between.
-    /// </summary>
+    public enum BodyPartIndex
+    {
+        Hair = 0,
+        Face = 1,
+        Eyebrows = 2,
+        Torso = 3,
+        Gauntlets = 4,
+        Leggings = 5,
+        Boots = 6,
+        Helmet = 7,
+        Weapon = 8,
+        Cape = 9,
+    }
+
+    public enum BodyColorIndex
+    {
+        _Color_Skin = 0,
+        _Color_Hair = 1,
+        _Color_Eyes = 2,
+        _Color_BodyArt = 3,
+        _Color_Primary = 4,
+        _Color_Secondary = 5,
+        _Color_Leather_Primary = 6,
+        _Color_Leather_Secondary = 7,
+        _Color_Metal_Primary = 8,
+        _Color_Metal_Secondary = 9,
+        _Color_Metal_Dark = 10,
+    }
+
+
+    [Serializable]
+    public class BodyPart
+    {
+        public GameObject parent;
+        public BodyPartIndex bodyPartEnum;
+        public int currentBodyPartId;
+    }
+
     public class CharacterParts : MonoBehaviour
     {
-        public enum BodyPartIndex
-        {
-            Hair,
-            Face,
-            Eyebrows,
-            Torso,
-            Gauntlets,
-            Leggings,
-            Boots,
-            Helmet,
-            Weapon,
-            Cape
-        }
-
-        public enum BodyColorIndex
-        {
-            _Color_Skin,
-            _Color_Hair,
-            _Color_Eyes,
-            _Color_BodyArt,
-            _Color_Primary,
-            _Color_Secondary,
-            _Color_Leather_Primary,
-            _Color_Leather_Secondary,
-            _Color_Metal_Primary,
-            _Color_Metal_Secondary,
-            _Color_Metal_Dark
-        }
-
-        [Serializable]
-        public class BodyPart
-        {
-            public BodyPartIndex bodyPartEnum;
-            public GameObject parent;
-            public int currentBodyPartId;
-        }
-
-        [SerializeField] private BodyPart[] bodyParts = Array.Empty<BodyPart>();
-        [SerializeField] private Material defaultMaterial;
-
-        public Material CurrentMaterial { get; private set; }
-
+        [Header("Info")]
+        public string characterName;
+        [Header("Body Parts")]
+        public BodyPart[] bodyParts;
+        [Header("Color")]
+        [SerializeField]
+        Material defaultMaterial;
+        public Material currentMaterial;
+        [SerializeField]
+        GameObject colorParent;
         private void Start()
         {
-            if (defaultMaterial != null)
-            {
-                CurrentMaterial = Instantiate(defaultMaterial);
-                ApplyMaterialRecursively(transform);
-            }
-
-            ApplyAllBodyParts();
+            currentMaterial = Instantiate(defaultMaterial);
+            ChangeMaterial(transform);
         }
 
-        public void ApplyAllBodyParts()
+        public void SetAllBodyParts()
         {
-            foreach (BodyPart part in bodyParts)
+            foreach (var bodyPart in bodyParts)
             {
-                SelectVariant(part, part.currentBodyPartId);
+                ChangeCurrentBodyPart(bodyPart.currentBodyPartId, bodyPart);
             }
         }
 
-        public void ChangeBodyPart(BodyPartIndex slot, int variantIndex)
+        public void ChangeBodyPart(BodyPartIndex bodyPart, int value)
         {
-            BodyPart part = FindSlot(slot);
-            if (part == null)
+            foreach (var bp in bodyParts)
             {
-                return;
-            }
-
-            SelectVariant(part, variantIndex);
-
-            // Helmets can hide hair/face depending on the variant's naming
-            // convention (mirrors the source project: a variant whose name
-            // starts with 'X' hides hair, 'Y' hides hair and face).
-            if (slot == BodyPartIndex.Helmet)
-            {
-                GameObject selected = GetVariantObject(part, variantIndex);
-                bool hidesHair = selected != null && (selected.name.StartsWith("X") || selected.name.StartsWith("Y"));
-                bool hidesFace = selected != null && selected.name.StartsWith("Y");
-
-                SetSlotVisible(BodyPartIndex.Hair, !hidesHair);
-                SetSlotVisible(BodyPartIndex.Face, !hidesFace);
-            }
-        }
-
-        public void SetColor(BodyColorIndex colorSlot, Color color)
-        {
-            if (CurrentMaterial == null)
-            {
-                return;
-            }
-
-            CurrentMaterial.SetColor(colorSlot.ToString(), color);
-        }
-
-        public int GetCurrentVariant(BodyPartIndex slot)
-        {
-            BodyPart part = FindSlot(slot);
-            return part?.currentBodyPartId ?? 0;
-        }
-
-        public Color GetColor(BodyColorIndex colorSlot)
-        {
-            if (CurrentMaterial == null || !CurrentMaterial.HasProperty(colorSlot.ToString()))
-            {
-                return Color.white;
-            }
-
-            return CurrentMaterial.GetColor(colorSlot.ToString());
-        }
-
-        private void SetSlotVisible(BodyPartIndex slot, bool visible)
-        {
-            BodyPart part = FindSlot(slot);
-            if (part == null)
-            {
-                return;
-            }
-
-            GameObject current = GetVariantObject(part, part.currentBodyPartId);
-            if (current != null)
-            {
-                current.SetActive(visible);
-            }
-        }
-
-        private BodyPart FindSlot(BodyPartIndex slot)
-        {
-            foreach (BodyPart part in bodyParts)
-            {
-                if (part.bodyPartEnum == slot)
+                if (bp.bodyPartEnum == bodyPart)
                 {
-                    return part;
+                    if (bodyPart == BodyPartIndex.Helmet)
+                        ChangeCurrentHelmet(value, bp);
+                    else if (bodyPart == BodyPartIndex.Hair)
+                        ChangeCurrentHair(value, bp);
+                    else if (bodyPart == BodyPartIndex.Face)
+                        ChangeCurrentHead(value, bp);
+                    else
+                        ChangeCurrentBodyPart(value, bp);
                 }
             }
-
-            return null;
         }
 
-        private static GameObject GetVariantObject(BodyPart part, int variantIndex)
+        public void ChangeCurrentHelmet(int value, BodyPart bp)
         {
-            if (part.parent == null || variantIndex < 0 || variantIndex >= part.parent.transform.childCount)
+            DissableAllOtherMeshes(bp);
+            var currentHelmet = EnableRightMesh(value, bp);
+            //Helmets that Start with X, will Delete the Hair
+            foreach (var bpp in bodyParts)
             {
-                return null;
-            }
+                if (bpp.bodyPartEnum == BodyPartIndex.Hair)
+                    if (currentHelmet.name[0] == 'X' || currentHelmet.name[0] == 'Y')
+                        DissableAllOtherMeshes(bpp);
+                    else
+                        ChangeCurrentBodyPart(bpp.currentBodyPartId, bpp);
 
-            return part.parent.transform.GetChild(variantIndex).gameObject;
+                if (bpp.bodyPartEnum == BodyPartIndex.Face)
+                    if (currentHelmet.name[0] == 'Y')
+                        DissableAllOtherMeshes(bpp);
+                    else
+                        ChangeCurrentBodyPart(bpp.currentBodyPartId, bpp);
+            }
         }
 
-        private static void SelectVariant(BodyPart part, int variantIndex)
+        void ChangeCurrentHair(int value, BodyPart bp)
         {
-            if (part.parent == null)
-            {
-                return;
-            }
-
-            Transform parentTransform = part.parent.transform;
-            for (int i = 0; i < parentTransform.childCount; i++)
-            {
-                parentTransform.GetChild(i).gameObject.SetActive(i == variantIndex);
-            }
-
-            part.currentBodyPartId = variantIndex;
+            DissableAllOtherMeshes(bp);
+            foreach (var bpp in bodyParts)
+                if (bpp.bodyPartEnum == BodyPartIndex.Helmet)
+                    if (GetCurrentMesh(bpp).name[0] == 'Y' || GetCurrentMesh(bpp).name[0] == 'X')
+                        bp.currentBodyPartId = value;
+                    else
+                        EnableRightMesh(value, bp);
         }
 
-        private void ApplyMaterialRecursively(Transform current, int depth = 0, int maxDepth = 4)
+        void ChangeCurrentHead(int value, BodyPart bp)
         {
-            if (depth > maxDepth)
+            DissableAllOtherMeshes(bp);
+            foreach (var bpp in bodyParts)
+                if (bpp.bodyPartEnum == BodyPartIndex.Helmet && GetCurrentMesh(bpp).name[0] != 'Y')
+                    EnableRightMesh(value, bp);
+                else
+                    bp.currentBodyPartId = value;
+        }
+
+        GameObject GetCurrentMesh(BodyPart bp)
+        {
+            return bp.parent.transform.GetChild(bp.currentBodyPartId).gameObject;
+        }
+
+        void ChangeCurrentBodyPart(int value, BodyPart bp)
+        {
+            DissableAllOtherMeshes(bp);
+            EnableRightMesh(value, bp);
+        }
+
+        void DissableAllOtherMeshes(BodyPart bp)
+        {
+            foreach (var bodyPart in bp.parent.GetComponentsInChildren<Transform>(true))
+                bodyPart.gameObject.SetActive(false);
+            bp.parent.SetActive(true);
+        }
+
+        GameObject EnableRightMesh(int value, BodyPart bp)
+        {
+            var currentBP = bp.parent.transform.GetChild(value).gameObject;
+            currentBP.SetActive(true);
+            foreach (var subPart in currentBP.GetComponentsInChildren<Transform>(true))
+                subPart.gameObject.SetActive(true);
+
+            bp.currentBodyPartId = value;
+            return currentBP;
+        }
+
+        public void CreateMaterial(Color skinColor, Color hairColor, Color eyesColor, Color bodyArtColor,
+            Color primary, Color secondary, Color leatherPrimary, Color leatherSecondary, Color metalPrimary, Color metalSecondary, Color metalDark)
+        {
+            currentMaterial = Instantiate(defaultMaterial);
+            currentMaterial.SetColor(Enum.GetName(typeof(BodyColorIndex), BodyColorIndex._Color_Skin), skinColor);
+            currentMaterial.SetColor(Enum.GetName(typeof(BodyColorIndex), BodyColorIndex._Color_Hair), hairColor);
+            currentMaterial.SetColor(Enum.GetName(typeof(BodyColorIndex), BodyColorIndex._Color_Eyes), eyesColor);
+            currentMaterial.SetColor(Enum.GetName(typeof(BodyColorIndex), BodyColorIndex._Color_BodyArt), bodyArtColor);
+            currentMaterial.SetColor(Enum.GetName(typeof(BodyColorIndex), BodyColorIndex._Color_Primary), primary);
+            currentMaterial.SetColor(Enum.GetName(typeof(BodyColorIndex), BodyColorIndex._Color_Secondary), secondary);
+            currentMaterial.SetColor(Enum.GetName(typeof(BodyColorIndex), BodyColorIndex._Color_Leather_Primary), leatherPrimary);
+            currentMaterial.SetColor(Enum.GetName(typeof(BodyColorIndex), BodyColorIndex._Color_Leather_Secondary), leatherSecondary);
+            currentMaterial.SetColor(Enum.GetName(typeof(BodyColorIndex), BodyColorIndex._Color_Metal_Primary), metalPrimary);
+            currentMaterial.SetColor(Enum.GetName(typeof(BodyColorIndex), BodyColorIndex._Color_Metal_Secondary), metalSecondary);
+            currentMaterial.SetColor(Enum.GetName(typeof(BodyColorIndex), BodyColorIndex._Color_Metal_Dark), metalDark);
+            ChangeMaterial(transform);
+        }
+
+        public void SetColorOnMaterial(BodyColorIndex index, Color Color)
+        {
+            currentMaterial.SetColor(Enum.GetName(typeof(BodyColorIndex), index), Color);
+        }
+
+        void ChangeMaterial(Transform currentTransform, int currentDepth = 0, int maxDepth = 4)
+        {
+            if (maxDepth < currentDepth) return;
+            Renderer renderer;
+            currentTransform.TryGetComponent(out renderer);
+            if (renderer != null)
             {
-                return;
+                renderer.material = currentMaterial;
             }
 
-            if (current.TryGetComponent(out Renderer renderer))
+            foreach (var child in currentTransform.GetComponentsInChildren<Transform>(true))
             {
-                renderer.sharedMaterial = CurrentMaterial;
-            }
-
-            for (int i = 0; i < current.childCount; i++)
-            {
-                ApplyMaterialRecursively(current.GetChild(i), depth + 1, maxDepth);
+                ChangeMaterial(child, currentDepth + 1, maxDepth);
             }
         }
     }

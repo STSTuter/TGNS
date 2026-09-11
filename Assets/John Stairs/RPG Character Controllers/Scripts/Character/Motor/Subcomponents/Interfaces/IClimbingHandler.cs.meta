@@ -1,9 +1,0 @@
-fileFormatVersion: 2
-guid: 7bf7bb1ae52ab8549847a4a92711ff00
-AssetOrigin:
-  serializedVersion: 1
-  productId: 145324
-  packageName: RPG Character Controllers
-  packageVersion: 7.0
-  assetPath: Assets/John Stairs/RPG Character Controllers/Scripts/Character/Motor/Subcomponents/Interfaces/IClimbingHandler.cs
-  uploadId: 979182
