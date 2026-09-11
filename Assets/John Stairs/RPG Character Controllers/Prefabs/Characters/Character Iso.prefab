@@ -4525,7 +4525,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CheckedLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   CausingTag: Terrain
   MaxPitch: 90
   RotationSmoothTime: 0.1
