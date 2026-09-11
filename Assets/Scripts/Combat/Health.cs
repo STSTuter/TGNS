@@ -1,88 +1,73 @@
+using FYP.UI;
 using System;
-using JohnStairs.RPG.Character;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-namespace TGNS.Combat
+namespace FYP.Combat
 {
-    /// <summary>
-    /// Server-authoritative health. Damage is only ever applied on the server
-    /// (see MeleeWeapon.OnTriggerEnter), and the resulting value is replicated
-    /// to every client via NetworkVariable so UI can bind to it directly.
-    /// An Animator/IAnimationHandler is optional - Die() is only forwarded to
-    /// it when present, so this also works on non-character targets like a
-    /// plain test dummy.
-    /// </summary>
     public class Health : NetworkBehaviour
     {
-        [SerializeField] private int maxHealth = 100;
+        [SerializeField]
+        public int maxHealth = 100;
+        [SerializeField]
+        NetworkVariable<int> currentHealth;
+        [SerializeField]
+        HPUI hpUI;
 
-        private readonly NetworkVariable<int> _currentHealth =
-            new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
-        private bool _dead;
-        private IAnimationHandler _animationHandler;
-
-        public int CurrentHealth => _currentHealth.Value;
-        public int MaxHealth => maxHealth;
-        public bool IsDead => _dead;
-
-        /// <summary>Fires on every client whenever health changes: (previous, current).</summary>
-        public event Action<int, int> OnHealthChanged;
-        public event Action OnDied;
-
-        private void Awake()
-        {
-            _animationHandler = GetComponent<IAnimationHandler>();
-        }
-
+        bool isDefeated;
         public override void OnNetworkSpawn()
         {
-            _currentHealth.OnValueChanged += HandleHealthChanged;
-
-            if (IsServer)
-            {
-                _currentHealth.Value = maxHealth;
-            }
+            ResetHealth();
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
-        public override void OnNetworkDespawn()
+        [ClientRpc]
+        void SetUI_ClientRPC()
         {
-            _currentHealth.OnValueChanged -= HandleHealthChanged;
+            if (IsLocalPlayer)
+                hpUI = GameObject.FindGameObjectsWithTag("HPUI")[0].GetComponent<HPUI>();
         }
 
-        private void HandleHealthChanged(int previousValue, int newValue)
-        {
-            OnHealthChanged?.Invoke(previousValue, newValue);
 
-            if (newValue <= 0 && !_dead)
-            {
-                _dead = true;
-                _animationHandler?.Die();
-                OnDied?.Invoke();
-            }
+        private void OnSceneLoaded(Scene arg0, LoadSceneMode arg1)
+        {
+            SetUI_ServerRPC();
         }
 
-        /// <summary>Server-only. Positive values heal, negative values damage.</summary>
-        public void ChangeHealth(int delta)
+        [ServerRpc]
+        void SetUI_ServerRPC()
         {
-            if (!IsServer || _dead)
-            {
-                return;
-            }
-
-            _currentHealth.Value = Mathf.Clamp(_currentHealth.Value + delta, 0, maxHealth);
+            SetUI_ClientRPC();
+        }
+            public void ResetHealth()
+        {
+            if (!IsServer) return;
+            currentHealth.Value = maxHealth;
+            ChangeHealth(0);
         }
 
-        public void ResetHealth()
+        public void ChangeHealth(int value)
         {
-            if (!IsServer)
-            {
-                return;
-            }
+            if (!IsServer) return;
+            currentHealth.Value += value;
+            if (currentHealth.Value > maxHealth)
+                currentHealth.Value = maxHealth;
 
-            _dead = false;
-            _currentHealth.Value = maxHealth;
+            if (currentHealth.Value <= 0)
+            {
+                isDefeated = true;
+            }
+            ChangeHP_ClientRPC();
+        }
+        [ClientRpc]
+        void ChangeHP_ClientRPC()
+        {
+            if (IsLocalPlayer && hpUI != null)
+                hpUI.healthCircle.fillAmount = currentHealth.Value / (float)maxHealth;
         }
     }
 }

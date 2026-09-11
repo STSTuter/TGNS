@@ -1,57 +1,49 @@
+using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace TGNS.Combat
+namespace FYP.Combat
 {
-    /// <summary>
-    /// Hitbox for melee attacks. The collider is kept disabled outside of the
-    /// active-swing window (see PlayerCombat) and hit detection/damage is
-    /// server-only so a client can never apply damage by spoofing a trigger.
-    /// </summary>
-    [RequireComponent(typeof(Collider))]
     public class MeleeWeapon : NetworkBehaviour
     {
-        [SerializeField] private int damage = 10;
-        [SerializeField] private Collider hitCollider;
+        [SerializeField]
+        int damage = 10;
 
-        /// <summary>The Health this weapon belongs to, so wielders can't damage themselves.</summary>
-        [SerializeField] private Health ownerHealth;
+        [SerializeField]
+        BoxCollider collider;
+        [SerializeField]
+        PlayerCombat palyerRef;
 
-        private void Awake()
+        [SerializeField]
+        Health ownHealthRef;
+
+        private void OnEnable()
         {
-            if (hitCollider == null)
-            {
-                hitCollider = GetComponent<Collider>();
-            }
-
-            hitCollider.isTrigger = true;
+            palyerRef.weapon = this;
             DisableCollision();
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!IsServer)
-            {
-                return;
-            }
+            other.TryGetComponent(out Health health);
+            if (health == null || health == ownHealthRef) return;
 
-            if (!other.TryGetComponent(out Health targetHealth) || targetHealth == ownerHealth)
-            {
-                return;
-            }
-
-            targetHealth.ChangeHealth(-damage);
+            health.ChangeHealth(-damage);
             DisableCollision();
         }
 
         public void EnableCollision()
         {
-            hitCollider.enabled = true;
+            collider.enabled = true;
         }
 
         public void DisableCollision()
         {
-            hitCollider.enabled = false;
+            collider.enabled = false;
         }
+
+
+
     }
 }
