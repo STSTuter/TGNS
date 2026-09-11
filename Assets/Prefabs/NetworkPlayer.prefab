@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba9af0a0fe3d2454dbda95cca0e613bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LocalPosition: {x: 0, y: 1.2, z: 0}
+  LocalPosition: {x: 0, y: 2, z: 0}
   PositionSmoothTime: 0.1
   EnableEvasion: 1
   EvasionSmoothTime: 0.2
@@ -823,7 +823,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2493235505937313295, guid: 88df0389e96833a4ab4d5a21ed648138, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.056
+      value: 0.793
       objectReference: {fileID: 0}
     - target: {fileID: 2493235505937313295, guid: 88df0389e96833a4ab4d5a21ed648138, type: 3}
       propertyPath: m_LocalPosition.z
