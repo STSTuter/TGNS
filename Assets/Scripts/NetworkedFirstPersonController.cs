@@ -25,10 +25,25 @@ public class NetworkedFirstPersonController : NetworkBehaviour
     [Tooltip("Renderers hidden for the owner only (e.g. the head mesh) to avoid camera clipping into the character's own model.")]
     [SerializeField] private Renderer[] firstPersonHiddenRenderers = System.Array.Empty<Renderer>();
 
+    [Header("Body facing")]
+    [Tooltip("SmoothDamp time for rotating the body toward its target facing. Higher = slower, no snapping.")]
+    [SerializeField] private float bodyRotationSmoothTime = 0.15f;
+    [Tooltip("Once the camera yaw is more than this far from the body, the torso is pulled toward the camera so the head stays under its own limit.")]
+    [SerializeField] private float beginTorsoCorrection = 75f;
+    [Tooltip("Minimum planar input magnitude before the body re-aims toward the movement direction.")]
+    [SerializeField] private float moveFacingThreshold = 0.1f;
+
     private RPGMotor _motor;
     private float _yaw;
     private float _pitch;
+    private float _bodyYaw;
+    private float _bodyYawVel;
     private bool _cursorLocked;
+
+    /// <summary>Owner-only camera yaw in degrees (world space). Consumed by HumanoidHeadLook.</summary>
+    public float CameraYaw => _yaw;
+    /// <summary>Owner-only camera pitch in degrees. Consumed by HumanoidHeadLook.</summary>
+    public float CameraPitch => _pitch;
 
     private void Awake()
     {
@@ -46,6 +61,7 @@ public class NetworkedFirstPersonController : NetworkBehaviour
 
             _yaw = transform.eulerAngles.y;
             _pitch = 0f;
+            _bodyYaw = transform.eulerAngles.y;
 
             if (fpsCamera != null)
             {
@@ -111,11 +127,39 @@ public class NetworkedFirstPersonController : NetworkBehaviour
 
         if (cameraPivot != null)
         {
-            cameraPivot.localRotation = Quaternion.Euler(_pitch, 0f, 0f);
+            // The camera now yaws independently of the body: the pivot carries the yaw offset
+            // between the body facing and the look direction, plus the pitch.
+            float relativeYaw = Mathf.DeltaAngle(transform.eulerAngles.y, _yaw);
+            cameraPivot.localRotation = Quaternion.Euler(_pitch, relativeYaw, 0f);
+        }
+    }
+
+    /// <summary>
+    /// Body facing is decoupled from the camera. When moving, the body smoothly turns toward the
+    /// camera-relative movement vector; when stationary it holds its heading. If the camera yaw
+    /// runs past <see cref="beginTorsoCorrection"/> the torso is pulled toward the camera so the
+    /// head-look component never has to exceed its own yaw limit. Rotation is still handed to
+    /// RPGMotor.TurnInDirection so it stays inside the network-authoritative movement flow.
+    /// </summary>
+    private void UpdateBodyFacing(Vector3 planarMoveDirection)
+    {
+        float targetYaw = _bodyYaw;
+
+        if (planarMoveDirection.sqrMagnitude > moveFacingThreshold * moveFacingThreshold)
+        {
+            targetYaw = Mathf.Atan2(planarMoveDirection.x, planarMoveDirection.z) * Mathf.Rad2Deg;
         }
 
-        Vector3 flatForward = Quaternion.Euler(0f, _yaw, 0f) * Vector3.forward;
-        _motor.TurnInDirection(flatForward, Vector3.up);
+        float headOffset = Mathf.DeltaAngle(targetYaw, _yaw);
+        if (Mathf.Abs(headOffset) > beginTorsoCorrection)
+        {
+            targetYaw = _yaw - Mathf.Sign(headOffset) * beginTorsoCorrection;
+        }
+
+        _bodyYaw = Mathf.SmoothDampAngle(_bodyYaw, targetYaw, ref _bodyYawVel, bodyRotationSmoothTime);
+
+        Vector3 bodyForward = Quaternion.Euler(0f, _bodyYaw, 0f) * Vector3.forward;
+        _motor.TurnInDirection(bodyForward, Vector3.up);
     }
 
     private void HandleMovement()
@@ -138,6 +182,8 @@ public class NetworkedFirstPersonController : NetworkBehaviour
         Vector3 moveDirection = yawForward * input.y + yawRight * input.x;
         _motor.Move(moveDirection);
 
+        UpdateBodyFacing(moveDirection);
+
         if (keyboard.spaceKey.wasPressedThisFrame)
         {
             _motor.Jump();
@@ -145,7 +191,7 @@ public class NetworkedFirstPersonController : NetworkBehaviour
 
         _motor.Sprint(keyboard.leftShiftKey.isPressed);
 
-        if (keyboard.leftCtrlKey.wasPressedThisFrame)
+        if (keyboard.cKey.wasPressedThisFrame)
         {
             _motor.ToggleCrouching();
         }
