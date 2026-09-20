@@ -31,8 +31,8 @@ Git dependencies are requested by repository URL without a commit fragment; the 
 |---|---|---|
 | Session and diagnostics | `Assets/Scripts/SteamBootstrap.cs`, `SteamLobbyManager.cs`, `DebugUI.cs` | Steam lifecycle, host/join/disconnect, IMGUI debug controls |
 | Spawn positions | `Assets/Scripts/PlayerSpawnPoints.cs` | Inspector-assigned points or direct-child collection |
-| Active scene/player | `Assets/Scenes/SampleScene.unity`, `Assets/Prefabs/NetworkPlayer.prefab` | Scene's NGO player reference resolves to the humanoid prefab |
-| Ownership migration | `Assets/Scripts/NetworkPlayerOwnership.cs`, `Assets/Scripts/Editor/OrbitControllerSetup.cs` | Owner-only vendor input/motor/camera stack; migration helper |
+| Active scene/player | `Assets/Scenes/SampleScene.unity`, `Assets/Prefabs/Character.prefab` | Scene's `NetworkManager.PlayerPrefab` (GUID `b4ca84e0d54203d4586d2b3b28857e58`) |
+| First person view | `Assets/Scripts/Player/FirstPersonCamera.cs`, `FirstPersonController.cs`, `Assets/Scripts/Editor/FirstPersonPlayerSetup.cs` | Owner-only look/input on top of the vendor `RPGMotor`; prefab conversion helper |
 | Locomotion/animation | `Assets/Scripts/NetworkPlayerAnimationDriver.cs`, `HumanoidHeadLook.cs` | Motor-driven animation parameters and head look |
 | Appearance | `Assets/Scripts/Character/CharacterParts.cs`, `MultiplayerParts.cs` | Modular appearance and network synchronization |
 | Combat | `Assets/Scripts/Combat/PlayerCombat.cs`, `MeleeWeapon.cs`, `Health.cs` | Attack requests, server hit detection, replicated health |
@@ -52,9 +52,9 @@ Paths in cells after the first are relative to the first file's directory. Impor
 
 ## Current integration gaps
 
-These are inspection findings, not a request to repair unrelated work during documentation maintenance.
+These are inspection findings, not a request to repair unrelated work during documentation maintenance. Parts of this document still name files from before the scene moved to `Character.prefab` (`NetworkPlayerOwnership.cs`, `NetworkPlayerAnimationDriver.cs`, `HumanoidHeadLook.cs`, `PlayerCamera`); those rows were not re-audited during the first person change and should be checked against the working tree before they are relied on.
 
-1. **Controller migration needs runtime verification.** `SampleScene` references `NetworkPlayer.prefab` (GUID `f0991c084c801dc4294cd617f48e6b9f`). During this documentation pass the prefab changed from the first-person stack to serialized `NetworkPlayerOwnership` and `PlayerCamera`; the latest inspected asset no longer contains the old controller class name. The ownership script and its `.meta` are untracked, the prefab/setup helper are modified, and the old controller sources are staged for deletion. This is ongoing working-tree work. Inspect the current Editor state and references, then verify local/remote control and one owner camera/audio listener before treating the migration as tested.
+1. **First person view needs a playtest.** `Character.prefab` no longer carries `RPGCamera`, `RPGViewFrustum` or `RPGController`; `FirstPersonCamera` and `FirstPersonController` replace them and both self-enable for the owner in `OnNetworkSpawn`. `RPGMotorMMO` is kept, so locomotion tuning and the animator parameters remote replicas play are unchanged, and its `AlignWithCamera`/`AlsoRotateCamera` are now `Never` because the camera owns body rotation. Mouse X is routed through `RPGMotor.SetRotation` rather than applied to the transform, because `StartMotor` resets `Turning Direction` at the top of its own update and any rotation applied outside that window never reaches the animator. Compilation and the prefab conversion are verified; owner/remote control, the single owner camera and audio listener, and the turning animation remote players see are not. See [Testing](TESTING.md).
 2. **Combat/animation integration needs a playtest.** `PlayerCombat` calls `IAnimationHandler.Cast/FinishCast`, which the project locomotion driver currently leaves empty. The presence of melee scripts is not evidence of visible attack animation or a complete combat loop.
 3. **Current multiplayer evidence is missing.** The original README says two-PC tests passed; the original architecture report says the cross-machine join was not observed. Neither establishes current humanoid/controller behavior. See the verification ledger in [Testing](TESTING.md).
 
