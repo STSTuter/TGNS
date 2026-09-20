@@ -36,6 +36,7 @@ Git dependencies are requested by repository URL without a commit fragment; the 
 | Locomotion/animation | `Assets/Scripts/NetworkPlayerAnimationDriver.cs`, `HumanoidHeadLook.cs` | Motor-driven animation parameters and head look |
 | Appearance | `Assets/Scripts/Character/CharacterParts.cs`, `MultiplayerParts.cs` | Modular appearance and network synchronization |
 | Combat | `Assets/Scripts/Combat/PlayerCombat.cs`, `MeleeWeapon.cs`, `Health.cs` | Attack requests, server hit detection, replicated health |
+| Physics carry | `Assets/Scripts/Interaction/PlayerCarry.cs`, `PlayerStrength.cs`, `Grabbable.cs`, `GrabbableNetworkTransform.cs`, `CarryHud.cs`, `Assets/Scripts/Editor/PhysicsGrabSetup.cs` | First person pick up/carry/throw driven by a strength-capped force, ownership transfer on grab, setup menus |
 | Prefab/animation authoring | `Assets/Scripts/Editor/` | Menu-driven player, animator, combat, and test-dummy setup |
 | Build support | `Assets/Editor/SteamAppIdPostBuild.cs` | Writes AppID file beside Windows build |
 | Legacy baseline | `Assets/PlayerMovement.cs`, `Assets/Prefabs/Player.prefab` | Earlier capsule movement; not the scene's current NGO player prefab |
@@ -48,6 +49,13 @@ Paths in cells after the first are relative to the first file's directory. Impor
 - `NetworkPlayerAnimationDriver` writes locomotion parameters for the owner and sends jump triggers through `NetworkAnimator`. Its `Cast` and `FinishCast` methods are no-ops, so the older combat path's animation calls do not establish working melee visuals.
 - `MultiplayerParts` submits owner-selected appearance to the server and replicates the appearance through a network variable. This does not provide persistent character storage.
 - `PlayerCombat` reads owner attack input and requests animation/hitbox changes through RPCs. Attack timing/cooldown is checked locally. `MeleeWeapon` applies damage on the server; `Health` uses a server-write network variable. This combination is not proof of fully server-validated combat.
+- The physics carry system requests a grab from the server, which re-checks reach against its own copy of
+  both transforms and mass against the player's server-written `PlayerStrength`. On acceptance the server
+  calls `NetworkObject.ChangeOwnership` so the grabbing client simulates the prop locally, and
+  `RemoveOwnership` on release, which is also where the clamped throw velocity is applied. Props therefore
+  use an owner-authoritative `GrabbableNetworkTransform` plus `NetworkRigidbody`, and are server-owned at
+  rest. The holder is a server-written network variable, so a second player cannot take a held prop and
+  late joiners see it in the carrier's hands. This is not proof against a cheating client that owns a prop.
 - Authority for future cargo, prices, money, caravan control, and discovered locations has not been designed. Define it per mechanic rather than inheriting movement's owner authority for shared economic state.
 
 ## Current integration gaps
@@ -56,7 +64,13 @@ These are inspection findings, not a request to repair unrelated work during doc
 
 1. **First person view needs a playtest.** `Character.prefab` no longer carries `RPGCamera`, `RPGViewFrustum` or `RPGController`; `FirstPersonCamera` and `FirstPersonController` replace them and both self-enable for the owner in `OnNetworkSpawn`. `RPGMotorMMO` is kept, so locomotion tuning and the animator parameters remote replicas play are unchanged, and its `AlignWithCamera`/`AlsoRotateCamera` are now `Never` because the camera owns body rotation. Mouse X is routed through `RPGMotor.SetRotation` rather than applied to the transform, because `StartMotor` resets `Turning Direction` at the top of its own update and any rotation applied outside that window never reaches the animator. Compilation and the prefab conversion are verified; owner/remote control, the single owner camera and audio listener, and the turning animation remote players see are not. See [Testing](TESTING.md).
 2. **Combat/animation integration needs a playtest.** `PlayerCombat` calls `IAnimationHandler.Cast/FinishCast`, which the project locomotion driver currently leaves empty. The presence of melee scripts is not evidence of visible attack animation or a complete combat loop.
-3. **Current multiplayer evidence is missing.** The original README says two-PC tests passed; the original architecture report says the cross-machine join was not observed. Neither establishes current humanoid/controller behavior. See the verification ledger in [Testing](TESTING.md).
+3. **The carriage is local physics only, and collides badly with the player.** `Assets/Prefabs/Carriage.prefab`
+   is a 1000 kg `Rigidbody` with two `WheelCollider`s and `CarriageStabilizer`, and has no `NetworkObject`, so
+   nothing about it replicates. The reported launch when a player walks into it is consistent with PhysX
+   depenetrating the player's `CharacterController` against that body rather than resolving a contact; the
+   `CharacterController` cannot receive or exchange impulses. This has not been reproduced or measured during
+   this pass and is not addressed by the carry system.
+4. **Current multiplayer evidence is missing.** The original README says two-PC tests passed; the original architecture report says the cross-machine join was not observed. Neither establishes current humanoid/controller behavior. See the verification ledger in [Testing](TESTING.md).
 
 ## Scope and historical rationale
 

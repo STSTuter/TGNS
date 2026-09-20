@@ -43,6 +43,31 @@ The post-build hook `Assets/Editor/SteamAppIdPostBuild.cs` writes `steam_appid.t
 
 The Unity Test Framework dependency is installed. No project-owned automated test suite was identified in this inspection. Do not report tests as passed simply because the package exists. Use the Editor Test Runner for tests added or found for the specific change.
 
+## Physics carry checks
+
+Preconditions: `SampleScene` open, the four `Grab Test ...` props beside the carriage at roughly
+(702.6, 4.0, 42.4), and the player prefab carrying `PlayerStrength`, `PlayerCarry` and `CarryHud`.
+Controls: **E** grab/drop, **left mouse** throw, **scroll** hold distance, **R + mouse** rotate the held
+object, **F1** releases the cursor.
+
+Single player (host only) is enough for steps 1-4; steps 5-8 need a second client.
+
+1. The 5 kg and 35 kg crates can be picked up, carried, dropped and thrown. The 5 kg one throws noticeably
+   further than the 35 kg one.
+2. The 90 kg block can be grabbed but not raised: it hangs low, drags on the ground, and the player's
+   movement is visibly slower while holding it.
+3. The 250 kg block refuses the grab and the HUD says why.
+4. A carried object collides with world geometry, does not pass through walls, and does not shove the player.
+   Walking a crate into a wall makes it stop, not jitter.
+5. Both players see a carried prop in roughly the same place while it is being carried, and in the same place
+   after it is dropped. Note how steppy it looks to the observer; the tick rate is 30 Hz.
+6. A second player aiming at a prop the first is holding is refused with "someone else is carrying that".
+7. The client picks up a prop, then disconnects. The prop must stay in the world and become grabbable again,
+   not disappear. Repeat with the client holding a prop while the host disconnects.
+8. A player who joins while another is carrying a prop sees it in that player's hands.
+
+Record what actually happened per step. Compilation and the Editor setup runs below prove none of this.
+
 ## Two-PC smoke test
 
 Preconditions: same build on two Windows PCs; separate Steam accounts that are friends; Steam running on both. Record the build/revision and any uncommitted asset changes.
@@ -65,5 +90,6 @@ Logs: Editor Console and `%LOCALAPPDATA%/Unity/Editor/Editor.log`; player logs u
 | Original networking baseline; date/revision absent | [Original notes](archive/NETWORKING_BASELINE.md) | Historical local compile/host/build claims retained. README and architecture conflict on whether cross-machine joining was tested; unresolved. |
 | 2026-09-11 documentation standardization | Read project-owned source, manifest/lockfile, scene/prefab references, existing Git status | Documentation inspection only. Observed the controller prefab migration land during the pass; runtime verification remains pending, along with the combat-animation integration gap. No Editor, build, or live multiplayer test performed. |
 | 2026-09-20 first person controller/camera, working tree at 77bff6b plus uncommitted changes | Headless Editor run (`unity run C:/TGNS -- -nographics -executeMethod FirstPersonPlayerSetup.ConvertPlayerPrefab`), Editor log, `git diff` of `Assets/Prefabs/Character.prefab` | Compiled with no errors and no new warnings; the conversion removed `RPGCamera`/`RPGViewFrustum`/`RPGController`, added the first person components disabled, and set `AlignWithCamera`/`AlsoRotateCamera` to `Never`. Re-running produced no further prefab change. **No Play Mode or multiplayer test was run** — look, movement, jump, the owner's hidden body, cursor lock, and the turning animation remote players see are all unverified. |
+| 2026-09-20 physics carry system, working tree at bb42324 plus uncommitted changes | Two headless Editor runs (`unity run C:/TGNS -- -nographics -executeMethod PhysicsGrabSetup.AddCarrySystemToPlayerPrefab` and `... PhysicsGrabSetup.CreateGrabbableTestPropsInSampleScene`), Editor logs in the session scratchpad, `git diff` of `Assets/Prefabs/Character.prefab` and `Assets/Scenes/SampleScene.unity` | Compiled with no errors and no new warnings; the only warnings are the pre-existing `Skybox3D`, `RPGCamera`/`FlareLayer` and `Health.isDefeated` ones. The prefab gained `PlayerStrength` enabled plus `PlayerCarry` and `CarryHud` disabled; the scene gained four in-scene `NetworkObject` test props (5/35/90/250 kg) with `DontDestroyWithOwner` set. **No Play Mode, no host/client and no two-PC test was run** - none of the checks above have been performed, so grabbing, weight feel, the movement penalty, replication of a carried prop, contested grabs and the disconnect case are all unverified. The first placement run put the props at y=0.6 because a headless downward raycast fell through the terrain; they were re-placed relative to the carriage and the earlier ones removed. |
 
 Add a row after a meaningful verification run with date, revision/build, scenario, observed result, and evidence location. Keep failures and incomplete checks visible. A result applies to the tested build and scenario, not every subsequent change.

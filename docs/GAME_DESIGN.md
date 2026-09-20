@@ -1,6 +1,6 @@
 # Game design
 
-Last updated: 2026-09-11. This document owns intended player experience and design decisions. Implementation evidence lives in [Architecture](ARCHITECTURE.md).
+Last updated: 2026-09-20. This document owns intended player experience and design decisions. Implementation evidence lives in [Architecture](ARCHITECTURE.md).
 
 ## Confirmed direction
 
@@ -37,11 +37,16 @@ Observe whether both players contribute to a cargo or route decision, whether th
 | ID / date | Status | Decision | Basis / consequence |
 |---|---|---|---|
 | D-001 / 2026-09-11 | Accepted | Co-op trading and exploration using a caravan | Explicit project-owner direction. Evaluate proposed mechanics against this experience. |
+| D-002 / 2026-09-20 | Accepted | The game is physics based: cargo is picked up and carried as simulated objects with real mass, not as inventory entries, and the player has a strength stat that decides what they can lift | Explicit project-owner direction. Carrying capacity becomes a felt constraint and a reason to cooperate, and loading the caravan becomes a physical activity rather than a menu. See [Physics carry](mechanics/physics-carry.md). Moving the caravan and the player/caravan collision problem are explicitly deferred to a later step. |
 
 For a new decision, record what was chosen, why, and a link to its mechanic brief or evidence if one exists. If it changes later, mark it superseded and link the replacement; preserve the reason without carrying obsolete instructions into the current brief.
 
 ## Mechanic register
 
-No detailed mechanic briefs are accepted yet. Trading, caravan interaction, and exploration are areas to design; prototype combat and locomotion are implementation context, not approved gameplay specifications.
+| Mechanic | Design status | Delivery status | Brief |
+|---|---|---|---|
+| Physics carry (pick up, carry, load) | accepted | in progress | [mechanics/physics-carry.md](mechanics/physics-carry.md) |
+
+Trading, caravan interaction, and exploration remain areas to design; prototype combat and locomotion are implementation context, not approved gameplay specifications. The physics carry brief is accepted as direction, but nothing in it has been playtested - see its evidence table.
 
 Use the [mechanic brief](WORKFLOW.md#mechanic-brief) when saving an idea. Track **design status** (`proposed`, `accepted`, `deferred`, `rejected`, `superseded`) separately from **delivery status** (`not started`, `in progress`, `implemented`) and dated verification evidence.

@@ -22,9 +22,11 @@ namespace FYP.Combat
         [SerializeField]
         Animator animator;
         RPGInputActions inputAction;
+        PlayerCarry carry;
 
         private void Awake()
         {
+            carry = GetComponent<PlayerCarry>();
             inputAction = RPGInputManager.GetInputActions();
             inputAction.Character.Attack.performed += Attack;
 
@@ -33,6 +35,9 @@ namespace FYP.Combat
         private void Attack(InputAction.CallbackContext context)
         {
             if (!IsLocalPlayer)
+                return;
+            // Left mouse throws a carried object instead of swinging, so the hands have to be empty
+            if (carry != null && carry.IsCarrying)
                 return;
             if (Time.time - lastAttackEndTime > 2f && attackCounter <= attacks.Count)
             {

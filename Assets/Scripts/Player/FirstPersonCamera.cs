@@ -46,6 +46,7 @@ public class FirstPersonCamera : NetworkBehaviour, IRPGCamera
     private float _pitch;
     private float _pendingYawDegrees;
     private bool _cursorLocked;
+    private bool _lookSuppressed;
 
     /// <summary>
     /// Pivot the camera is parented to. Use it as the origin for interaction rays.
@@ -103,7 +104,7 @@ public class FirstPersonCamera : NetworkBehaviour, IRPGCamera
             SetCursorLocked(!_cursorLocked);
         }
 
-        if (!_cursorLocked)
+        if (!_cursorLocked || _lookSuppressed)
         {
             return;
         }
@@ -138,6 +139,22 @@ public class FirstPersonCamera : NetworkBehaviour, IRPGCamera
         float degrees = _pendingYawDegrees;
         _pendingYawDegrees = 0f;
         return degrees;
+    }
+
+    /// <summary>
+    /// Stops mouse look from turning the body or pitching the view without unlocking the cursor. Used while
+    /// the mouse is borrowed for something else, e.g. rotating a carried object.
+    /// </summary>
+    /// <param name="suppressed">If true, look input is ignored until this is called again with false</param>
+    public virtual void SuppressLook(bool suppressed)
+    {
+        _lookSuppressed = suppressed;
+
+        if (suppressed)
+        {
+            // Drop whatever the controller has not consumed yet so the body does not snap when look resumes
+            _pendingYawDegrees = 0f;
+        }
     }
 
     /// <summary>

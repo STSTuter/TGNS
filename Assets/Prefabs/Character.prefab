@@ -2602,6 +2602,9 @@ GameObject:
   - component: {fileID: 4668816992478250}
   - component: {fileID: 526884476208347957}
   - component: {fileID: 4960042798024226909}
+  - component: {fileID: 5910768392323088523}
+  - component: {fileID: 6017060592301420210}
+  - component: {fileID: 8424988825433769661}
   m_Layer: 8
   m_Name: Character
   m_TagString: Player
@@ -3071,6 +3074,142 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FirstPersonController
   ShowTopMostFoldoutHeaderGroup: 1
   ActivateControl: 1
+--- !u!114 &5910768392323088523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 412217679416926269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10c0fbc04a2bef049bfdacae053aef2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStrength
+  ShowTopMostFoldoutHeaderGroup: 1
+  liftCapacity: 40
+  dragCapacityMultiplier: 3
+  forceHeadroom: 2.5
+  turnAcceleration: 30
+  throwImpulsePerCapacity: 0.6
+--- !u!114 &6017060592301420210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 412217679416926269}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61feeb57822cbae45bad992ac84e8a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCarry
+  ShowTopMostFoldoutHeaderGroup: 1
+  grabRange: 3.5
+  grabRadius: 0.15
+  grabLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  serverRangeTolerance: 2
+  holdDistance: 2
+  holdDistanceMin: 1.2
+  holdDistanceMax: 3.5
+  holdDistanceStep: 0.25
+  holdResponsiveness: 12
+  maxHoldSpeed: 7
+  turnResponsiveness: 10
+  maxTurnSpeed: 6
+  overloadSag: 1.2
+  breakDistance: 2.5
+  minSpeedFactor: 0.35
+  rotateSensitivity: 0.35
+  grabAction:
+    m_Name: Grab
+    m_Type: 1
+    m_ExpectedControlType: 
+    m_Id: 2fcc92a3-0a77-4722-a77f-d694c1e25b08
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 7aae026f-8522-4a47-ab9d-c55c7589e5b2
+      m_Path: <Keyboard>/e
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Grab
+      m_Flags: 0
+    m_Flags: 0
+    m_Priority: 0
+  throwAction:
+    m_Name: Throw
+    m_Type: 1
+    m_ExpectedControlType: 
+    m_Id: 1c9c7e32-9693-4c0a-8712-0837ffd4d5c5
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 7ab51403-9e91-48ba-a1fd-63ed9c5d2a52
+      m_Path: <Mouse>/leftButton
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Throw
+      m_Flags: 0
+    m_Flags: 0
+    m_Priority: 0
+  holdDistanceAction:
+    m_Name: Hold Distance
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 0b233ca4-b48d-4247-a400-1f68f639f30e
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 9a88faa2-0387-4f26-9c18-6f8ed3ed52ac
+      m_Path: <Mouse>/scroll/y
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Hold Distance
+      m_Flags: 0
+    m_Flags: 0
+    m_Priority: 0
+  rotateHeldAction:
+    m_Name: Rotate Held Object
+    m_Type: 1
+    m_ExpectedControlType: 
+    m_Id: f619c1ef-5cae-4e32-ad9c-1b5ce0f14ad7
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 09398541-a386-4157-9f7a-8a5ad94abe8e
+      m_Path: <Keyboard>/r
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Rotate Held Object
+      m_Flags: 0
+    m_Flags: 0
+    m_Priority: 0
+--- !u!114 &8424988825433769661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 412217679416926269}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ba97e95288864744a4ce5bb5b027a37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CarryHud
+  ShowTopMostFoldoutHeaderGroup: 1
+  showHud: 1
+  refusalDuration: 1.5
 --- !u!1 &468140485848035927
 GameObject:
   m_ObjectHideFlags: 0

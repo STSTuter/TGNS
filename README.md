@@ -17,7 +17,7 @@ A Unity multiplayer prototype for a **co-op trading and exploration game using a
 
 Unity **6000.6.0f1**, Netcode for GameObjects **2.13.2**, Steamworks.NET, and the community SteamNetworkingSockets transport. See [package sources](Packages/manifest.json) and [resolved dependencies](Packages/packages-lock.json).
 
-Steam friends host or join by sharing a numeric lobby ID. The host also runs the NGO server; Steam provides lobby discovery/signalling and P2P transport. The configured lobby cap is four players. The project contains a humanoid network player, locomotion/animation integration, appearance synchronization, and prototype melee/health code.
+Steam friends host or join by sharing a numeric lobby ID. The host also runs the NGO server; Steam provides lobby discovery/signalling and P2P transport. The configured lobby cap is four players. The project contains a humanoid network player, locomotion/animation integration, appearance synchronization, prototype melee/health code, and a first person [physics carry system](docs/mechanics/physics-carry.md) for picking up and loading cargo by weight. The carry system compiles and is wired into the player prefab and scene; it has not been playtested.
 
 **Current verification gap (source inspection, 2026-09-11):** the scene uses `NetworkPlayer.prefab`, which now references the new ownership component and `PlayerCamera`. The orbit-controller migration is present in the working tree, but runtime behavior has not been verified in this documentation pass. See [Architecture](docs/ARCHITECTURE.md).
 
